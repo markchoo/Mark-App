@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>台灣高山百岳路線</title>
+    <meta charset="utf-8" />
+    <!--<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700">-->
+    <link rel="stylesheet" href="../css/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="../css/jqm-demos.css">
+    <style id="custom-icon">
+        .ui-icon-custom:after {
+            background-image: url("../images/21-skull.png");
+            background-position: 3px 3px;
+            background-size: 70%;
+        }
+    </style>
+    <script src="../scripts/jquery.js"></script>
+    <script src="../scripts/index.js"></script>
+    <script src="../scripts/jquery.mobile-1.4.5.min.js"></script>
+    <script src="../scripts/mark.js"></script>
+   <script>
+    //alert(1);
+    //http://www.jquerybyexample.net/2012/05/how-to-get-querystring-value-using.html
+
+    function start_load(url) {
+        loadXMLDoc(url, function (data) {
+            var id = GetQueryStringParams('id');
+            var id_if = false;
+            if (id != undefined) {
+                id_if = true;
+            }
+            var wptline = data.getElementsByTagName("wptline");
+            txt = "";
+            txt += "<a href='#' onclick='history.back()'  class='ui-btn ui-btn-inline'  target='_blank'>回上頁</a>";
+            txt += "<a href='m-app-main.html'   class='ui-btn ui-btn-inline'  target='_blank'>回離線功能</a>";
+            txt += "<h2>台灣高山百岳路線</h2>";
+            txt += "<h3>後頭數字表示［馬克經驗個數］與［山頭個數］</h3>";
+            var detail = wptline[0].getElementsByTagName("detail");
+            txt += "<ul data-role='listview' data-filter='true' data-count-theme='b'  data-filter-placeholder='輸入名稱查詢...'   data-inset='true' id='linemacroline'>";
+            var n = 0;
+            //alert(1);
+            var lin_nox = "xx";
+            var lin_no = "";
+            for (i = 0; i < detail.length; i++) {
+                if (detail[i].getAttribute('lm_id') == id) {
+                    lin_no = detail[i].getAttribute('lin_no');
+                    if (lin_nox != lin_no) {
+                        n += 1;
+                        txt += "<li><a href='m-app-line.html?id=" + detail[i].getAttribute('lin_no') + "' target='_self'>";
+                        //txt += "<img src='"+photo_path2+"' target='_self'>";
+                        txt += n;
+                        txt += "<h2>" + detail[i].getAttribute('lin_name_short') + "</h2>";
+                        txt += "<p>";
+                        txt += detail[i].getAttribute('lin_name');
+                        txt += "</p>";
+                        txt += "<p>";
+                        txt += "路線編號：" + detail[i].getAttribute('lin_no');
+                        txt += "</p>";
+                        txt += "<span class='ui-li-count'>" + detail[i].getAttribute('book_nn') + " - " + detail[i].getAttribute('wpt_nn') + "</span>";
+                        txt += "</a></li>";
+                        lin_nox = lin_no;
+                    }
+                }
+            }
+            txt += "</ul>"
+            $("#demo").html(txt);
+            $("#linemacroline").listview();
+            //alert(0);
+        })
+    }
+    function myFunction() {
+        //var url = window.location.href;
+        //var id = GetQueryStringParams('id');
+        //alert("id:"+id);
+        var url = "../data/wptline.xml"; // 檔案路徑
+        $.get(url)
+            .done(function () {
+                start_load(url);
+            }).fail(function () {
+                $("#demo").html("檔案找不到！" + url);
+        })
+    }
+
+    </script>
+
+</head>
+<body onload="myFunction()">
+    <div data-role="page" class="jqm-demos" data-quicklinks="true">
+        <div role="main" class="ui-content jqm-content">
+            <div id="demo">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

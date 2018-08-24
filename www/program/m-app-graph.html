@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>高度變化圖與地圖</title>
+    <meta charset="utf-8" />
+    <!--<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700">-->
+    <link rel="stylesheet" href="../css/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="../css/jqm-demos.css">
+    <style id="custom-icon">
+        .ui-icon-custom:after {
+            background-image: url("../images/21-skull.png");
+            background-position: 3px 3px;
+            background-size: 70%;
+        }
+    </style>
+    <style>
+        .img-responsive {
+            display: block;
+            height: auto;
+            max-width: 100%;
+        }
+    </style>
+    <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js">
+    </script>-->
+    <script src="../scripts/jquery.js"></script>
+    <script src="../scripts/index.js"></script>
+    <script src="../scripts/jquery.mobile-1.4.5.min.js"></script>
+    <script src="../scripts/mark.js"></script>
+    <script>
+        //$(document).ready(function () {
+
+        //    $('img').click(function () {
+        //        //$('p:first').removeClass('intro').addClass('main');
+        //        if ($(this).hasClass('img-responsive')) {
+        //            $(this).removeClass('img-responsive');
+        //        }
+        //        else {
+        //            $(this).addClass('img-responsive');
+        //        }
+        //    });
+        //});
+        function myFunction() {
+            var url = "../data/book.xml"; // 檔案路徑
+            $.get(url)
+                .done(function () {
+                    start_load(url);
+                }).fail(function () {
+                    $("#demo").html("檔案找不到！" + url);
+                })
+        }
+        function start_load(url) {
+            loadXMLDoc(url, function (data) {
+                //alert(0);
+                var id = GetQueryStringParams('id');
+                var id_if = false;
+                if (id != undefined) {
+                    id_if = true;
+                }
+                var book = data.getElementsByTagName("book");
+                txt = "";
+                txt += "<div role='main' class='ui-content jqm-content jqm-fullwidth'>";
+                txt += "<h2>高度變化圖與地圖 -- 馬克經驗資料</h2>";
+                var detail = book[0].getElementsByTagName("detail");
+                //alert(1);
+                for (i = 0; i < detail.length; i++) {
+                    if (detail[i].getAttribute('bk_sno') == id) {
+                        txt += "<h2>" + detail[i].getAttribute('bk_sno') + "." + detail[i].getAttribute('bk_name') + "</h2>";
+                        txt += "日期：" + detail[i].getAttribute('bk_ymd');
+                        if (detail[i].getAttribute('bk_day') > 1) {
+                            txt += "（" + detail[i].getAttribute('bk_day') + "天）";
+                        }
+                        txt += "<br/>";
+                        txt += "人員：" + detail[i].getAttribute('bk_person');
+                        if (detail[i].getAttribute('bk_persons') > 1) {
+                            txt += "（" + detail[i].getAttribute('bk_persons') + "人）";
+                        }
+                        txt += "</p>"
+                        txt += "<h3>（以下圖片可點擊以切換顯示明細度）</h3>";
+                        var gr = detail[i].getAttribute('bk_graph_dir');
+                        txt += out_graph(gr, detail[i].getAttribute('bk_graphname'));
+                        txt += out_graph(gr, detail[i].getAttribute('bk_mapname'));
+                    }
+                }
+                $("#demo").html(txt);
+                $('img').click(function () {
+                    //$('p:first').removeClass('intro').addClass('main');
+                    if ($(this).hasClass('img-responsive')) {
+                        $(this).removeClass('img-responsive');
+                    }
+                    else {
+                        $(this).addClass('img-responsive');
+                    }
+                });
+            })
+        }
+        function out_graph(gr, name) {
+            var res = name.split(",");
+            var txt = '';
+            //for (i = 0; i < res.length; i++) {
+            //    txt += '../gr/gr' + gr + '/' + res[i];
+            //}
+            for (var i in res) {
+                //var pathx = 'http://www.markchoo.com.tw/gr/gr' + gr + '/' + res[i];
+                //var pathx = 'http://localhost:8082/gr/gr' + gr + '/' + res[i];
+                var pathx = '../gr/gr' + gr + '/' + res[i];
+                txt += "<p><img src='" + pathx + "' class='img-responsive'></p>"
+                //document.write(res[i]);
+                //document.write("<br/>");
+            }
+            return txt;
+        }
+    </script>
+</head>
+<body onload="myFunction()">
+    <div data-role="page" class="jqm-demos" data-quicklinks="true">
+        <div data-role="header" data-position="fixed">
+            <a href="#" onclick='history.back()' class="ui-btn-left ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l">回上頁</a>
+            <!--<a href="#" onclick='window.location.href="m-app-main.html"' class="ui-btn ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l">回離線功能</a>-->
+            <a href="#" target="_blank" class="ui-btn-right ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l" onclick='window.location.href="m-app-main.html"'>回離線功能</a>
+            <h2>選擇</h2>
+        </div><!-- /header -->
+        <div id="demo">
+        </div>
+        <!--</div>-->
+    </div>
+</body>
+</html>

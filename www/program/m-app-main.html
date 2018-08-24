@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <!--if (typeof(Storage) !== "undefined") {
+    // Code for localStorage/sessionStorage.
+    } else {
+    // Sorry! No Web Storage support..
+    }
+    localStorage.setItem("lastname", "Smith");
+    // Retrieve
+    document.getElementById("result").innerHTML = localStorage.getItem("lastname");-->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>百岳</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700">
+    <link rel="stylesheet" href="../css/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="../css/jqm-demos.css">
+    <style id="custom-icon">
+        .ui-icon-custom:after {
+            background-image: url("../images/21-skull.png");
+            background-position: 3px 3px;
+            background-size: 70%;
+        }
+    </style>
+    <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js">
+    </script>-->
+    <script src="../scripts/jquery.js"></script>
+    <script src="../scripts/index.js"></script>
+    <script src="../scripts/jquery.mobile-1.4.5.min.js"></script>
+    <script src="../scripts/mark.js"></script>
+    <script>
+
+        function myFunction() {
+            var url = "../data/mark-app.xml"; // 檔案路徑
+            $.get(url)
+                .done(function () {
+                    start_load(url);
+                }).fail(function () {
+                    //$("#demo").html("檔案找不到！" + url);
+                    alert("檔案找不到！" + url);
+                })
+        }
+        function start_load(url) {
+            loadXMLDoc(url, function (data) {
+                var markapp = data.getElementsByTagName("markapp");
+                var bkpass_n = markapp[0].getAttribute("book2");
+                var book_nn = markapp[0].getAttribute("book");
+                var lin_nn = markapp[0].getAttribute("line");
+                var wpt_nn = markapp[0].getAttribute("wpt");
+                var wpt_n2 = markapp[0].getAttribute("wpt2");
+                var doc_nn = markapp[0].getAttribute("doc");
+                var plant_nn = markapp[0].getAttribute("plant");
+                $("#book").html(book_nn);
+                $("#line").html(lin_nn);
+                $("#wpt").html(wpt_nn);
+                $("#wpt2").html(wpt_n2);
+                $("#doc").html(doc_nn);
+                $("#plant").html(plant_nn);
+                localStorage.setItem("bkpass_n", bkpass_n);
+            })
+        }
+    </script>
+</head>
+<body onload="myFunction()">
+    <div data-role="page" class="jqm-demos" data-quicklinks="true">
+        <!--Tabbed page content-->
+        <!--http://demos.jquerymobile.com/1.4.5/tabs/tabbed-content.html-->
+        <!--<h1>離線功能</h1>-->
+        <div data-role="tabs">
+            <div data-role="navbar">
+                <div>
+                    <div data-role="header" style="overflow:hidden;">
+                        <h1>離線資料庫</h1>
+                        <a href="../index.html" class="ui-btn-left" target="_blank">主選單</a>
+                        <ul>
+                            <li><a href="#two" data-theme="a" data-ajax="false">台灣各種百岳</a></li>
+                            <li><a href="#three" data-theme="a" data-ajax="false">相關資料庫</a></li>
+                            <li><a href="#one" data-theme="a" data-ajax="false">說明與更新</a></li>
+                            <!--<li><a href="ajax-content-ignore.html" data-theme="a" data-ajax="false">three</a></li>-->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="two" class="ui-content">
+                <ul data-role="listview" data-count-theme='b'>
+                    <li data-role="list-divider">分類項目</li>
+                    <li><a href="m-app2.html?id=1" target="_self">台灣小百岳<span class='ui-li-count'>100</span></a></li>
+                    <li><a href="m-app2.html?id=4" target="_self">台灣高山百岳<span class='ui-li-count'>100</span></a></li>
+                    <li><a href="m-app2.html?id=5" target="_self">大台北郊山百岳<span class='ui-li-count'>100</span></a></li>
+                    <li><a href="m-app2.html?id=6" target="_self">台灣百名山<span class='ui-li-count'>100</span></a></li>
+                    <li><a href="m-app2.html?id=7" target="_self">台灣的燈塔<span class='ui-li-count'>35</span></a></li>
+                    <li data-role="list-divider">總項目</li>
+                    <li><a href="m-app-wpt.html?kind=2" target="_self">山頭資料庫<span class='ui-li-count' id="wpt2">0</span></a></li>
+                </ul>
+            </div>
+            <div id="three" class="ui-content">
+                <ul data-role="listview" data-count-theme='b'>
+                    <li><a href="m-app-book.html" target="_self">馬克經驗資料<span class='ui-li-count' id="book">0</span></a></li>
+                    <li><a href="m-app-line.html" target="_self">路線資料<span class='ui-li-count' id="line">0</span></a></li>
+                    <li><a href="m-app-wpt.html" target="_self">興趣點資料<span class='ui-li-count' id="wpt">0</span></a></li>
+                    <li><a href="m-app-doc.html" target="_self">文件資料<span class='ui-li-count' id="doc">0</span></a></li>
+                    <li><a href="m-app-learn.html" target="_self">教學資料</a></li>
+                    <li><a href="m-app-plant.html" target="_self">植物資料<span class='ui-li-count' id="plant">0</span></a></li>
+                </ul>
+            </div>
+            <div id="one" class="ui-content">
+                <h2>說明與更新</h2>
+                <hr/>
+                <div id="demo">
+                    <p>
+                        離線功能的資料都是採離線操作，不需網路信號。程式安裝後，需下載相關資料，才能確保資料運作並處於最新狀態。
+                    </p>
+                    <!--http://c-point.com/JavaScript/articles/file_access_with_JavaScript.htm-->
+                    <p>
+                        <input id="btnDownloadBook" type="button" value="下載馬克經驗" />
+                        <input type="text" multiple id="Outone" width="200" height="30"/>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

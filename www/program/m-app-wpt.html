@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>興趣點資料庫</title>
+    <meta charset="utf-8" />
+    <!--<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700">-->
+    <link rel="stylesheet" href="../css/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="../css/jqm-demos.css">
+    <style id="custom-icon">
+        .ui-icon-custom:after {
+            background-image: url("../images/21-skull.png");
+            background-position: 3px 3px;
+            background-size: 70%;
+        }
+    </style>
+    <script src="../scripts/jquery.js"></script>
+    <script src="../scripts/index.js"></script>
+    <script src="../scripts/jquery.mobile-1.4.5.min.js"></script>
+    <script src="../scripts/mark.js"></script>
+    <script>
+    //alert(1);
+     function start_load(url) {
+        loadXMLDoc(url, function (data) {
+            var id = GetQueryStringParams('id');
+            var kind = GetQueryStringParams('kind');
+            var id_if = false;
+            var kind2_if = false;
+            if (id != undefined) {
+                id_if = true;
+            }
+            if (kind != undefined) kind2_if = true;
+
+            var wpt = data.getElementsByTagName("wpt");
+            txt = "";
+            txt += "<div role='main' class='ui-content jqm-content jqm-fullwidth'>";
+            if (kind2_if) {
+                txt += "<h2>山頭資料庫</h2>";
+                txt += "<h2>（以下資料暫時只收集馬克爬過的山頭）</h2>";
+            }
+            else txt += "<h2>興趣點資料庫</h2>";
+            var detail = wpt[0].getElementsByTagName("detail");
+            var got_if = false;
+            if (id_if == false) {
+                txt += "<ul data-role='listview' data-filter='true' data-count-theme='b'  data-filter-placeholder='輸入名稱查詢...'  data-inset='true' id='wpt'>";
+                for (i = 0; i < detail.length; i++) {
+                    //var photo_path2 = "https://www.markchoo.com.tw" + detail[i].getAttribute('photo_path');
+                    //if (detail[i].getAttribute('photo_path') == '') {
+                    //    var photo_path2 = "../images/cms_mark.gif"
+                    //}
+                    //else {
+                    //    var photo_path2 = "http://localhost:8082" + detail[i].getAttribute('photo_path');
+                    //}
+                    //txt += "<li><a href='" + photo_path2 + "' target='_blank'>";
+                    got_if = true;
+                    if (kind2_if) {
+                        if (detail[i].getAttribute('book_nn') == 0) {
+                            got_if = false;
+                        }
+                    }
+                    if (got_if) {
+                        txt += "<li><a href='m-app-wpt.html?id=" + detail[i].getAttribute('w_id') + "' target='_self'>";
+                        //txt += "<img src='"+photo_path2+"' target='_self'>";
+                        txt += "<h2>" + detail[i].getAttribute('w_id') + "." + detail[i].getAttribute('c_name') + "</h2>";
+                        txt += "<p>";
+                        var out_if = false;
+                        if (detail[i].getAttribute('areas').length != 0) {
+                            txt += detail[i].getAttribute('areas');
+                            out_if = true;
+                        }
+                        if (detail[i].getAttribute('altitude_std') != 0) {
+                            if (out_if) {
+                                txt += "，";
+                            }
+                            txt += "標高" + detail[i].getAttribute('altitude_std') + "公尺";
+                            out_if = true;
+                        }
+                        if (detail[i].getAttribute('basepoints').length != 0) {
+                            if (out_if) {
+                                txt += "，";
+                            }
+                            txt += detail[i].getAttribute('basepoints');
+                            out_if = true;
+                        }
+                        if (detail[i].getAttribute('book_nn') != 0) {
+                            txt += "<span class='ui-li-count'>" + detail[i].getAttribute('book_nn') + "</span>";
+                        }
+                        txt += "</p>";
+                        txt += "</a></li>";
+                    }
+                }
+                txt += "</ul>"
+                txt += "<div>"
+                $("#demo").html(txt);
+                $("#wpt").listview();
+            }
+            else {
+                for (i = 0; i < detail.length; i++) {
+                    if (detail[i].getAttribute('w_id') == id) {
+                        txt += "<h2>" + detail[i].getAttribute('c_name') + "</h2>";
+                        txt += "<p>";
+                        txt += "編號：" + detail[i].getAttribute('w_id');
+                        txt += "<br/>";
+                        txt += detail[i].getAttribute('areas');
+                        txt += "<br/>";
+                        txt += "標高" + detail[i].getAttribute('altitude_std') + "公尺";
+                        txt += "<br/>";
+                        txt += detail[i].getAttribute('basepoints');
+                        txt += "</p>";
+                        txt += "<div id='demo2'>";
+                        txt += "</div>";
+                    }
+                }
+                txt += "<div>"
+                $("#demo").html(txt);
+                myFunction2();
+            }
+
+
+            //alert(0);
+        })
+    }
+     function start_load2(url) {
+         loadXMLDoc(url, function (data) {
+             var id = GetQueryStringParams('id');
+             var id_if = false;
+             if (id != undefined) {
+                 id_if = true;
+             }
+             var bookwpt = data.getElementsByTagName("bookwpt");
+             var detail = bookwpt[0].getElementsByTagName("detail");
+             txt = "";
+             txt += "<ul data-role='listview' data-filter='true'  data-count-theme='b' data-filter-placeholder='輸入名稱查詢...'   data-inset='true' id='bookwpt'>";
+             var n = 0;
+             for (i = 0; i < detail.length; i++) {
+                 //var photo_path2 = "https://www.markchoo.com.tw" + detail[i].getAttribute('photo_path');
+                 //if (detail[i].getAttribute('photo_path') == '') {
+                 //    var photo_path2 = "../images/cms_mark.gif"
+                 //}
+                 //else {
+                 //    var photo_path2 = "http://localhost:8082" + detail[i].getAttribute('photo_path');
+                 //}
+                 //txt += "<li><a href='" + photo_path2 + "' target='_blank'>";
+                 if (detail[i].getAttribute('w_id') == id) {
+                     n += 1;
+                     txt += "<li><a href='m-app-book.html?id=" + detail[i].getAttribute('bk_sno') + "' target='_self'>";
+                     //txt += "<li>";
+                     //txt += "<img src='"+photo_path2+"' target='_self'>";
+                     txt += n;
+                     txt += "<h2>" + detail[i].getAttribute('bk_sno') + "." + detail[i].getAttribute('bk_name') + "</h2>";
+                     txt += "<p>";
+                     txt += "日期：" + detail[i].getAttribute('bk_ymd');
+                     txt += "</p>";
+                     txt += "<p>";
+                     txt += "天數：" + detail[i].getAttribute('bk_day');
+                     txt += "</p>";
+                     if (detail[i].getAttribute('book_nn') != 0) {
+                         txt += "<span class='ui-li-count'>" + detail[i].getAttribute('book_nn') + "</span>";
+                     }
+                     txt += "</a></li>";
+                 }
+             }
+             var txt2 = "<h3>馬克經驗資料，共 " + n + " 筆</h3>";
+             $("#demo2").html(txt2 + txt);
+             $("#bookwpt").listview();
+             //alert(0);
+         })
+     }
+     function myFunction() {
+        //var url = window.location.href;
+        //var id = GetQueryStringParams('id');
+        //alert("id:"+id);
+        var url = "../data/wpt.xml"; // 檔案路徑
+        $.get(url)
+            .done(function () {
+                start_load(url);
+            }).fail(function () {
+                $("#demo").html("檔案找不到！" + url);
+        })
+    }
+    function myFunction2() {
+        //var url = window.location.href;
+        //var id = GetQueryStringParams('id');
+        //alert("id:"+id);
+        var url = "../data/bookwpt.xml"; // 檔案路徑
+        $.get(url)
+            .done(function () {
+                start_load2(url);
+            }).fail(function () {
+                $("#demo2").html("檔案找不到！" + url);
+            })
+    }
+    </script>
+</head>
+<body onload="myFunction()">
+    <div data-role="page" class="jqm-demos" data-quicklinks="true">
+        <div data-role="header" data-position="fixed">
+            <a href="#" onclick='history.back()' class="ui-btn-left ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l">回上頁</a>
+            <!--<a href="#" onclick='window.location.href="m-app-main.html"' class="ui-btn ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l">回離線功能</a>-->
+            <a href="#" target="_blank" class="ui-btn-right ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l" onclick='window.location.href="m-app-main.html"'>回離線功能</a>
+            <h2>選擇</h2>
+        </div><!-- /header -->
+        <div id="demo">
+        </div>
+        <!--</div>-->
+    </div>
+</body>
+</html>

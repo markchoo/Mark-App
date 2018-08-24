@@ -1,0 +1,166 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>馬克經驗 - 植物資料</title>
+    <meta charset="utf-8" />
+    <!--<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700">-->
+    <link rel="stylesheet" href="../css/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="../css/jqm-demos.css">
+    <style id="custom-icon">
+        .ui-icon-custom:after {
+            background-image: url("../images/21-skull.png");
+            background-position: 3px 3px;
+            background-size: 70%;
+        }
+    </style>
+    <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js">
+    </script>-->
+    <script src="../scripts/jquery.js"></script>
+    <script src="../scripts/index.js"></script>
+    <script src="../scripts/jquery.mobile-1.4.5.min.js"></script>
+    <script src="../scripts/mark.js"></script>
+   <script>
+        function myFunction() {
+            var url = "../data/book.xml"; // 檔案路徑
+            $.get(url)
+                .done(function () {
+                    start_load(url);
+                }).fail(function () {
+                    $("#demo").html("檔案找不到！" + url);
+                })
+        }
+        function start_load(url) {
+            loadXMLDoc(url, function (data) {
+                var id = GetQueryStringParams('id');
+                var id_if = false;
+                if (id != undefined) {
+                    id_if = true;
+                }
+                var book = data.getElementsByTagName("book");
+                txt = "";
+                txt += "<div role='main' class='ui-content jqm-content jqm-fullwidth'>";
+                txt += "<h2>馬克經驗 - 植物資料</h2>";
+                var detail = book[0].getElementsByTagName("detail");
+
+                for (i = 0; i < detail.length; i++) {
+                    //var photo_path2 = "https://www.markchoo.com.tw" + detail[i].getAttribute('photo_path');
+                    //if (detail[i].getAttribute('photo_path') == '') {
+                    //    var photo_path2 = "../images/cms_mark.gif"
+                    //}
+                    //else {
+                    //    var photo_path2 = "http://localhost:8082" + detail[i].getAttribute('photo_path');
+                    //}
+                    //txt += "<li><a href='" + photo_path2 + "' target='_blank'>";
+                    if (detail[i].getAttribute('bk_sno') == id) {
+                        txt += "<h2>" + detail[i].getAttribute('bk_sno')+"."+detail[i].getAttribute('bk_name') + "</h2>";
+                        txt += "<p>";
+                        txt += "日期：" + detail[i].getAttribute('bk_ymd') + "，天數：" + detail[i].getAttribute('bk_day');
+                        txt += "<br/>";
+                        txt += "人數：" + detail[i].getAttribute('bk_persons') + "，人員：" + detail[i].getAttribute('bk_person');
+                        txt += "<br/>";
+                            
+                        txt += "<div id='demo_plant'>";
+                        txt += "</div>";
+                        txt += "</p>";
+                    }
+                }
+                $("#demo").html(txt);
+                txt += "<div>"
+                myFunction_plant();
+            })
+        }
+
+        function myFunction_plant() {
+            var url = window.location.href;
+            var id = GetQueryStringParams('id');
+            var mx = get_id(id);
+            //alert("id:"+id);
+            var url = "../data/plant-book.xml"; // 檔案路徑
+            $.get(url)
+                .done(function () {
+                    start_load_plant(url);
+                }).fail(function () {
+                    $("#demo_plant").html("檔案找不到！" + url);
+                })
+        }
+
+        function start_load_plant(url) {
+            loadXMLDoc(url, function (data) {
+                var id = GetQueryStringParams('id');
+                var id_if = false;
+                if (id != undefined) {
+                    id_if = true;
+                }
+                var plantbook = data.getElementsByTagName("plantbook");
+                var detail = plantbook[0].getElementsByTagName("detail");
+                txt = "";
+                txt += "植物資料：（數字為馬克經驗個數）";
+                var detail = plantbook[0].getElementsByTagName("detail");
+                txt += "<ul data-role='listview' data-count-theme='b' data-inset='true' id='plantbook'>";
+                var n = 0;
+                for (i = 1; i < detail.length; i++) {
+                    if (detail[i].getAttribute('bk_sno') == id) {
+                        n += 1;
+                        var w_id = detail[i].getAttribute('w_id');
+                        txt += "<li><a href='m-app-plant.html?id=" + detail[i].getAttribute('pt_id') + "' target='_self'>";
+                        //txt += "<li>";
+                        //txt += "<img src='"+photo_path2+"' target='_self'>";
+                        txt += n;
+                        txt += "<h3>" + detail[i].getAttribute('pt_id') + "." + detail[i].getAttribute('pt_name') + "</h2>";
+
+                        txt += "<p>";
+                        txt += "別稱：" + detail[i].getAttribute('pt_name1');
+                        txt += "<br/>";
+                        txt += "科名：" + detail[i].getAttribute('ker_name');
+                        txt += "</p>";
+                        if (detail[i].getAttribute('wpt_nn') != 0) {
+                            txt += "<span class='ui-li-count'>" + detail[i].getAttribute('bookplant_nn') + "</span>";
+                        }
+                        txt += "</a></li>";
+                        //txt += "</li>";
+                    }
+                }
+                txt += "</ul>"
+                $("#demo_plant").html(txt);
+                $("#plantbook").listview();
+            })
+        }
+
+
+        function start_load2(url) {
+            loadXMLDoc(url, function (data) {
+                var id = GetQueryStringParams('id');
+                var id_if = false;
+                if (id != undefined) {
+                    id_if = true;
+                }
+                var bookbkpass = data.getElementsByTagName("book-bkpass");
+                var detail = bookbkpass[0].getElementsByTagName("detail");
+                for (i = 0; i < detail.length; i++) {
+                    if (detail[i].getAttribute('bk_sno') == id) {
+                        var bkpass = detail[i].getElementsByTagName('bkpass');
+                        var txt = "";
+                        txt += out_html(bkpass[0].firstChild.nodeValue);
+                        $("#demo2").html(txt);
+                    }
+                }
+            })
+        }
+
+    </script>
+</head>
+<body onload="myFunction()">
+    <div data-role="page" class="jqm-demos" data-quicklinks="true">
+        <div data-role="header" data-position="fixed">
+            <a href="#" onclick='history.back()' class="ui-btn-left ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l">回上頁</a>
+            <!--<a href="#" onclick='window.location.href="m-app-main.html"' class="ui-btn ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l">回離線功能</a>-->
+            <a href="#" target="_blank" class="ui-btn-right ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l" onclick='window.location.href="m-app-main.html"'>回離線功能</a>
+            <h2>選擇</h2>
+        </div><!-- /header -->
+        <div id="demo">
+        </div>
+        <!--</div>-->
+    </div>
+</body>
+</html>

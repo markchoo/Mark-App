@@ -1,0 +1,761 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>馬克經驗</title>
+    <meta charset="utf-8" />
+    <!--<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700">-->
+    <link rel="stylesheet" href="../css/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="../css/jqm-demos.css">
+    <style id="custom-icon">
+        .ui-icon-custom:after {
+            background-image: url("../images/21-skull.png");
+            background-position: 3px 3px;
+            background-size: 70%;
+        }
+    </style>
+    <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js">
+    </script>-->
+    <script src="../scripts/jquery.js"></script>
+    <script src="../scripts/index.js"></script>
+    <script src="../scripts/jquery.mobile-1.4.5.min.js"></script>
+    <script src="../scripts/mark.js"></script>
+   <script>
+       var span_photo = "photo_";
+
+        function myFunction() {
+            var url = "../data/book.xml"; // 檔案路徑
+            $.get(url)
+                .done(function () {
+                    start_load(url);
+                }).fail(function () {
+                    $("#demo").html("檔案找不到！" + url);
+                })
+        }
+        function start_load(url) {
+            loadXMLDoc(url, function (data) {
+                var id = GetQueryStringParams('id');
+                var id_if = false;
+                if (id != undefined) {
+                    id_if = true;
+                }
+                var book = data.getElementsByTagName("book");
+                txt = "";
+                txt += "<div role='main' class='ui-content jqm-content jqm-fullwidth'>";
+                txt += "<h2>馬克經驗資料</h2>";
+                var detail = book[0].getElementsByTagName("detail");
+                if (id_if == false) {
+                    txt += "<ul data-role='listview' data-count-theme='b'  data-filter='true' data-filter-placeholder='輸入名稱查詢...'   data-inset='true' id='book'>";
+                    for (i = 1; i < detail.length; i++) {
+                        //var photo_path2 = "https://www.markchoo.com.tw" + detail[i].getAttribute('photo_path');
+                        //if (detail[i].getAttribute('photo_path') == '') {
+                        //    var photo_path2 = "../images/cms_mark.gif"
+                        //}
+                        //else {
+                        //    var photo_path2 = "http://localhost:8082" + detail[i].getAttribute('photo_path');
+                        //}
+                        //txt += "<li><a href='" + photo_path2 + "' target='_blank'>";
+                        txt += "<li><a href='m-app-book.html?id=" + detail[i].getAttribute('bk_sno') + "' target='_self'>";
+                        //txt += "<li>";
+                        //txt += "<img src='"+photo_path2+"' target='_self'>";
+                        txt += "<h2>" + detail[i].getAttribute('bk_sno') + "." + detail[i].getAttribute('bk_name') + "</h2>";
+                        txt += "<p>";
+                        txt += "日期：" + detail[i].getAttribute('bk_ymd');
+                        if (detail[i].getAttribute('bk_day') > 1) {
+                            txt += "（" + detail[i].getAttribute('bk_day') + "天）";
+                        }
+                        txt += "</p>";
+                        txt += "<p>";
+                        txt += "人員：" + detail[i].getAttribute('bk_person');
+                        if (detail[i].getAttribute('bk_persons') > 1) {
+                            txt += "（" + detail[i].getAttribute('bk_persons') + "人）";
+                        }
+                        txt += "</p>";
+                        if (detail[i].getAttribute('wpt_nn') != 0) {
+                            txt += "<span class='ui-li-count'>" + detail[i].getAttribute('wpt_nn') + "</span>";
+                        }
+                        txt += "</a></li>";
+                        //txt += "</li>";
+                    }
+                    txt += "</ul>"
+                    txt += "<div>"
+                    $("#demo").html(txt);
+                    $("#book").listview();
+                }
+                else {
+                    for (i = 0; i < detail.length; i++) {
+                        //var photo_path2 = "https://www.markchoo.com.tw" + detail[i].getAttribute('photo_path');
+                        //if (detail[i].getAttribute('photo_path') == '') {
+                        //    var photo_path2 = "../images/cms_mark.gif"
+                        //}
+                        //else {
+                        //    var photo_path2 = "http://localhost:8082" + detail[i].getAttribute('photo_path');
+                        //}
+                        //txt += "<li><a href='" + photo_path2 + "' target='_blank'>";
+                        if (detail[i].getAttribute('bk_sno') == id) {
+                            txt += "<h2>" + detail[i].getAttribute('bk_sno')+"."+detail[i].getAttribute('bk_name') + "</h2>";
+                            txt += "<p>";
+                            txt += "日期：" + detail[i].getAttribute('bk_ymd') + "，天數：" + detail[i].getAttribute('bk_day');
+                            txt += "<br/>";
+                            txt += "人數：" + detail[i].getAttribute('bk_persons') + "，人員：" + detail[i].getAttribute('bk_person');
+                            txt += "<br/>";
+                            
+                            txt += "連結：";
+                            txt += "照片（待製）";
+                            txt += " -- <a href='m-app-graph.html?id=" + id + "' target='_self'>高度變化圖與地圖</a>";
+                            txt += "<span id='demo_plant' />";
+                            var download_url = "http://localhost:8082/gps/gps-download/mark-" + adjust1(id, 5) + ".gpx";
+                            txt += " -- <a href='" + download_url + "' target='_self'>下載</a>";
+                            
+                            txt += "<div id='demo_wpt'>";
+                            txt += "</div>";
+                            //txt += "<br/>";
+                            txt += "經過：";
+                            txt += "<br/>";
+                            txt += "<div id='demo2'>";
+                            txt += "</div>";
+                            txt += "</p>";
+                        }
+                    }
+                    $("#demo").html(txt);
+                    txt += "<div>"
+                    myFunction_bkpass();
+                    myFunction_wpt();
+                    myFunction_plant();
+                }
+                //alert(0);
+            })
+        }
+        function myFunction_wpt() {
+            var url = window.location.href;
+            var id = GetQueryStringParams('id');
+            var mx = get_id(id);
+            //alert("id:"+id);
+            var url = "../data/bookwpt.xml"; // 檔案路徑
+            $.get(url)
+                .done(function () {
+                    start_load_wpt(url);
+                }).fail(function () {
+                    $("#demo_wpt").html("檔案找不到！" + url);
+                })
+        }
+        function myFunction_wpt_detail(id,id2) {
+            //var url = window.location.href;
+            //var id = GetQueryStringParams('id');
+            //var mx = get_id(id);
+            //alert("id:"+id);
+            var url = "../data/wpt.xml"; // 檔案路徑
+            $.get(url)
+                .done(function () {
+                    start_load_wpt_detail(url, id, id2);
+                }).fail(function () {
+                    $("#"+id2).html("檔案找不到！" + url);
+                })
+        }
+        function myFunction_plant() {
+            var url = window.location.href;
+            var id = GetQueryStringParams('id');
+            var mx = get_id(id);
+            //alert("id:"+id);
+            var url = "../data/plant-book.xml"; // 檔案路徑
+            $.get(url)
+                .done(function () {
+                    start_load_plant(url);
+                }).fail(function () {
+                    $("#demo_plant").html("檔案找不到！" + url);
+                })
+        }
+        function myFunction_bkpass() {
+            var url = window.location.href;
+            var id = GetQueryStringParams('id');
+            var mx = get_id(id);
+            //alert("id:"+id);
+            var url = "../data/book-bkpass/book-bkpass-" + mx + ".xml"; // 檔案路徑
+            $.get(url)
+                .done(function () {
+                    start_load2(url);
+                    //$("#demo2").html("檔案找到！" + url);
+                }).fail(function () {
+                    if (typeof (Storage) !== "undefined") {
+                        // Code for localStorage/sessionStorage.
+                        $("#demo2").html("Code for localStorage/sessionStorage..檔案找不到！" + url);
+                    } else {
+                        // Sorry! No Web Storage support..
+                        $("#demo2").html("Sorry! No Web Storage support..檔案找不到！" + url);
+                    }
+                    //$("#demo2").html("檔案找不到！" + url);
+                })
+        }
+        function start_load_plant(url) {
+            loadXMLDoc(url, function (data) {
+                var id = GetQueryStringParams('id');
+                var id_if = false;
+                if (id != undefined) {
+                    id_if = true;
+                }
+                var plantbook = data.getElementsByTagName("plantbook");
+                var detail = plantbook[0].getElementsByTagName("detail");
+                txt = "";
+                var n = 0;
+                for (i = 1; i < detail.length; i++) {
+                    if (detail[i].getAttribute('bk_sno') == id) {
+                        n += 1;
+                    }
+                }
+                if (n > 0) txt = " -- <a href='m-app-book-plant.html?id=" + id.toString() + "' target='_self'>植物資料(" + n.toString() + ")</a>";
+                else txt = " -- 植物資料(無)"
+                $("#demo_plant").html(txt);
+            })
+        }
+        function start_load_wpt(url) {
+            loadXMLDoc(url, function (data) {
+                var id = GetQueryStringParams('id');
+                var id_if = false;
+                if (id != undefined) {
+                    id_if = true;
+                }
+                var bookwpt = data.getElementsByTagName("bookwpt");
+                txt = "";
+                txt += "興趣點資料：（數字為馬克經驗個數）";
+                var detail = bookwpt[0].getElementsByTagName("detail");
+                txt += "<ul data-role='listview' data-count-theme='b' data-inset='true' id='bookwpt'>";
+                var n = 0;
+                for (i = 1; i < detail.length; i++) {
+                    if (detail[i].getAttribute('bk_sno') == id) {
+                        n += 1;
+                        var w_id = detail[i].getAttribute('w_id');
+                        txt += "<li><a href='m-app-wpt.html?id=" + w_id + "' target='_self'>";
+                        //txt += "<li>";
+                        //txt += "<img src='"+photo_path2+"' target='_self'>";
+                        //txt += n;
+                        txt += "<h3>" + n + " " + detail[i].getAttribute('c_name') + "</h2>";
+
+                        //  呼叫取得標高、基點等資料
+
+                        txt += "<div id='demo_" + w_id + "'>";
+                        txt += "</div>";
+                        myFunction_wpt_detail(w_id, "demo_" + w_id);
+                        //if (detail[i].getAttribute('bk_day') > 1) {
+                        //    txt += "（" + detail[i].getAttribute('bk_day') + "天）";
+                        //}
+                        //txt += "</p>";
+                        //txt += "<p>";
+                        //txt += "人員：" + detail[i].getAttribute('bk_person');
+                        //if (detail[i].getAttribute('bk_persons') > 1) {
+                        //    txt += "（" + detail[i].getAttribute('bk_persons') + "人）";
+                        //}
+                        //txt += "</p>";
+                        if (detail[i].getAttribute('wpt_nn') != 0) {
+                            txt += "<span class='ui-li-count'>" + detail[i].getAttribute('wpt_nn') + "</span>";
+                        }
+                        txt += "</a></li>";
+                        //txt += "</li>";
+                    }
+                }
+                txt += "</ul>"
+                $("#demo_wpt").html(txt);
+                $("#bookwpt").listview();
+ 
+                //alert(0);
+            })
+        }
+        function start_load_wpt_detail(url,id,id2) {
+            loadXMLDoc(url, function (data) {
+                //var id = GetQueryStringParams('id');
+
+                var id_if = true;
+                var wpt = data.getElementsByTagName("wpt");
+                txt = "";
+                var detail = wpt[0].getElementsByTagName("detail");
+                for (i = 1; i < detail.length; i++) {
+                    if (detail[i].getAttribute('w_id') == id) {
+                        txt += "標高" + detail[i].getAttribute('altitude_std') + "公尺";
+                        txt += "，地區：";
+                        txt += detail[i].getAttribute('areas');
+                        txt += "，基點：";
+                        txt += detail[i].getAttribute('basepoints');
+                        //txt += "</li>";
+                        $("#" + id2).html(txt);
+                    }
+                }
+            })
+        }
+        function start_load2(url) {
+            loadXMLDoc(url, function (data) {
+                var id = GetQueryStringParams('id');
+                var id_if = false;
+                if (id != undefined) {
+                    id_if = true;
+                }
+                var bookbkpass = data.getElementsByTagName("book-bkpass");
+                var detail = bookbkpass[0].getElementsByTagName("detail");
+                for (i = 0; i < detail.length; i++) {
+                    if (detail[i].getAttribute('bk_sno') == id) {
+                        var bkpass = detail[i].getElementsByTagName('bkpass');
+                        var txt = "";
+                        txt += out_html(bkpass[0].firstChild.nodeValue);
+                        $("#demo2").html(txt);
+                        if (id == 3076) {
+                            process_img(span_photo);
+                        }
+                    }
+                }
+            })
+        }
+        function out_html(txt) {
+            
+            var ret = txt;
+
+            //ret = attach_fun(ret);
+            //ret = link_fun(ret);
+            ret = img_fun2(ret);
+            //ret = trans_saying(ret);
+            //ret = trans_link_special(ret, "ELP-003", "ELP-002");
+            //ret = trans_link_special(ret, "SAM-003", "SAM-002");
+            //ret = bk_pass_trans(ret, bk_content_wait, bk_nocontent_if);
+
+            return ret;
+        }
+        function alert2(x) {
+            alert(x);
+        }
+        function link_fun(ret) {
+            var retx = ret;
+            var str_const1 = "link";
+            var str_const2 = "show";
+            var str_const3 = "link2";
+            var str_const = "";
+            var link_now = "";
+            var op_kind = 0;
+
+            var ix = 0;
+            while (retx.toLowerCase().indexOf("[" + str_const1) != -1 || retx.toLowerCase().IndexOf("[" + str_const2) != -1 || retx.toLowerCase().IndexOf("[" + str_const3) != -1) {
+                ix += 1;
+                //alert2(ix);
+                if (retx.toLowerCase().IndexOf("[" + str_const3) != -1) {
+                    op_kind = 3;
+                    str_const = str_const3;
+                }
+                else if (retx.toLowerCase().IndexOf("[" + str_const2) != -1) {
+                    op_kind = 2;
+                    str_const = str_const2;
+                }
+                else {
+                    op_kind = 1;
+                    str_const = str_const1;
+                }
+
+                var attach_ix = retx.toLowerCase().IndexOf("[" + str_const);
+                var attach_ix2 = retx.toLowerCase().IndexOf("]", attach_ix);
+                if (attach_ix2 != -1) {
+                    var strx2 = retx.substring(attach_ix + 1, attach_ix2).trim();
+                    var strx2_dim = strx2.Split(' ');
+                    var strx3 = "";
+
+                    var bk_sno = 0;
+                    var lin_no = 0;
+                    var map_id = 0;
+                    var doc_id = 0;
+                    var learn = 0;
+                    var dirx = "";
+                    var name = "";
+
+                    for (var i = 1; i < strx2_dim.length; i++)
+                    {
+                        var strx4 = strx2_dim[i];
+                        if (parse_para(strx4, "bk_sno").length != 0) bk_sno = parseInt(parse_para(strx4, "bk_sno"));
+                        if (parse_para(strx4, "lin_no").length != 0) lin_no = parseInt(parse_para(strx4, "lin_no"));
+                        if (parse_para(strx4, "map_id").length != 0) map_id = parseInt(parse_para(strx4, "map_id"));
+                        if (parse_para(strx4, "doc_id").length != 0) doc_id = parseInt(parse_para(strx4, "doc_id"));
+                        if (parse_para(strx4, "learn").length != 0) learn = parseInt(parse_para(strx4, "learn"));
+                    }
+                    var linkx = "";
+                    var link2 = "";
+
+
+                }
+                else break;
+            }
+
+            return retx;
+        }
+        function img_fun2(txt) {
+            var img_style = " ";
+            var img_class1 = "img-responsive";
+            var img_class2 = "img-responsive2";
+            var retx;
+
+            var photo_kind = "1";
+
+            retx = txt;
+
+            var img_first = false;
+            var img_enter = false;
+
+            var attach_ix = 0;
+            var attach_ix2 = 0;
+            var ix = 0;
+            var ix2 = 0;
+
+            var strx2 = "";
+            var strx3 = "";
+
+            var pic_content = "";
+
+            var str_const = "[img ";
+            var i2 = 0;
+            //alert2(1);
+            while (retx.toLowerCase().indexOf(str_const, 0) != -1) {
+                ix2 = retx.toLowerCase().indexOf(str_const, 0);
+                attach_ix = ix2;
+                attach_ix2 = retx.indexOf("]", attach_ix);
+                ix = attach_ix;
+                if (ix != -1) {
+                    //alert2(3);
+                    //strx2 = retx.substring(attach_ix + 1, attach_ix2 - attach_ix - 1);
+                    strx2 = retx.substring(attach_ix + 1, attach_ix2);
+                    //alert2('strx2:' + strx2);
+                    var strx2_dim = strx2.split(' ');
+                    //alert2('strx2_dim.length:' + strx2_dim.length);
+                    strx3 = "";
+
+                    var bk_sno = 0;
+                    var pic_seri = 0;
+                    var pic_size = 0;
+                    var width = 0;
+                    var border = 0;
+                    var align = "";
+                    var desc = "";
+                    var name = "";
+
+                    var pic_seri_str = "";
+                    var pic_seri_a = new Array();
+                    //alert2(32);
+
+                    var pic_seri_a_if = false;
+
+                    //foreach (string s in strx2_dim)
+                    var s = "";
+                    //alert2(4);
+                    i2 = 0;
+                    for (var n = 0; n < strx2_dim.length; n++) {
+                        s = strx2_dim[n];
+                        i2 += 1;
+                        if (i2 == 1) continue;
+                        var strx4 = s;
+                        //alert2('n:' + n.toString());
+                        //alert2('s:' + s);
+
+                        //alert2(5);
+                        //alert2(strx4);
+                        if (parse_para(strx4, "bk_sno").length != 0) bk_sno = parseInt(parse_para(strx4, "bk_sno"));
+                        //alert2('bk_sno:'+bk_sno.toString());
+                        var len1 = parse_para(strx4, "pic_seri").length;
+                        //alert2('len1:' + len1);
+                        if (len1 > 0) {
+                            //alert2('parse:' + parse_para(strx4, "pic_seri"));
+                            //alert2('parse length:' + len1);
+                            //alert2('pic_seri n:' + n);
+                            pic_seri_str = parse_para(strx4, "pic_seri");
+
+                            //alert2(6);
+                            if (pic_seri_str.indexOf(",") != -1)
+                            {
+                                //alert2(7);
+                                pic_seri_a_if = true;
+                                var aa = pic_seri_str.split(',');
+                                //var s2 = "";
+                                //for (var n1 = 0; n1 < aa.length; n1++) {
+                                //    s2 = aa[n1];
+                                //    if (s2.indexOf("-") != -1) dash_add(pic_seri_a, s2);
+                                //}
+                                //alert2('aa.length:' + aa.length);
+                                var s3 = "";
+                                for (var n2 = 0; n2 < aa.length; n2++) {
+                                    s3 = aa[n2];
+                                    if (s3.indexOf("-") != -1) {
+                                        //alert2(10);
+                                        dash_add(pic_seri_a, s3);
+                                    }
+                                    else {
+                                        //alert2('n2:' + n2);
+                                        pic_seri_a.push(s3);
+                                        //alert2(11);
+                                    }
+                                }
+                                //alert2(8);
+                            }
+                            else {
+                                //alert2(9);
+                                if (pic_seri_str.indexOf("-") != -1)
+                                {
+                                    pic_seri_a_if = true;
+                                    dash_add(pic_seri_a, pic_seri_str);
+                                }
+                                else pic_seri = parseInt(pic_seri_str);
+                            }
+                            //alert2('pic_seri2');
+                        }
+                            //alert2(8);
+						if (parse_para(strx4, "align").length != 0) align = parse_para(strx4, "align").toString();
+						if (parse_para(strx4, "desc").length != 0) desc = parse_para(strx4, "desc").toString();
+						if (parse_para(strx4, "pic_size").length != 0) pic_size = parseInt(parse_para(strx4, "pic_size"));
+						if (parse_para(strx4, "width").length != 0) width = parseInt(parse_para(strx4, "width"));
+						if (parse_para(strx4, "border").length != 0) border = parseInt(parse_para(strx4, "border"));
+					}
+					//alert2(1);
+					var linkx = "";
+					var link2 = "";
+					var link3 = "";
+					var widthx = "";
+					var widthy = "";
+					if ((width != 0) && photo_kind == "1")
+					{
+						widthx = " width='" + width.toString() + "'";
+						widthy = "&width=" + width.toString();
+					    //link3 += widthx;  //  不需指定寬度了
+						//alert2('width:' + widthx);
+					}
+					//alert2(2);
+					if (border != 0) link3 += " border='" + border.toString() + "'";
+					if (align.length != 0) link3 += " align='" + align + "'";
+					//alert2(3);
+					//alert2('bk_sno:' + bk_sno);
+					//alert2('pic_seri_a.Count:' + pic_seri_a.length);
+					//alert2('pic_size:' + pic_size);
+					if ((bk_sno != 0) && ((pic_seri != 0) || (pic_seri_a.length > 0)) && pic_size != 0) {
+						//alert2(3);
+						var last_pic_seri = 0;
+						if (pic_seri_a_if) last_pic_seri = pic_seri_a.length - 1;
+						linkx = "";
+						var img_src = "";
+						var link4 = "";
+						//alert2('a');
+						for (var i = 0; i <= last_pic_seri; i++)
+						{
+							//alert2(4);
+							if (pic_seri_a_if)
+							{
+								pic_seri = parseInt(pic_seri_a[i].toString());
+							}
+							//else { pic_seri = 0; }
+
+							link2 = "?bk_sno=" + bk_sno.toString() + "&pic_seri=" + pic_seri.toString() + widthy;
+							link2 += "&pic_size=" + pic_size.toString();
+							if (desc.Length != 0) link2 += "&desc=" + desc;
+							link2 += "'";
+							//pic_content = find.find_fieldvalue_Cond("picture", " bk_sno=" + bk_sno.ToString() + " and pic_seri=" + pic_seri.ToString(), "pic_content");
+							pic_content = "To Get";
+							link4 = "<a href='/mark/" + bk_sno.toString() + "/photo/";
+							link4 += pic_seri.toString() + "' style='text-decoration:none;' target='_blank'>";
+							var titlex = "";
+
+							if (desc.Length != 0) titlex = desc;
+							else titlex = pic_seri.toString() + "-" + pic_content;
+
+							var video_str = "<video width='800' style='display: block' id='video' controls class='img-responsive'>";
+							video_str += "<source src='movie.mp4' type='video/mp4'>Your browser does not support the video tag.";
+							video_str += "</video>";
+
+							var img_str2 = "";
+							//var pic_name = find.find_fieldvalue_Cond("picture", " bk_sno=" + bk_sno.ToString() + " and pic_seri=" + pic_seri.ToString(), "pic_name");
+							var pic_name = "pic_name";
+							//var right3 = System.IO.Path.GetExtension(pic_name).ToUpper();
+							var right3 = pic_name.split(".").pop().toUpperCase();
+							//alert2(5);
+							if (right3 == ".MP4" || right3 == ".WMV")
+							{
+								//  NM-003A NM-001A     book/   book
+								//var bk_id1 = Convert.ToInt32(find.find_fieldvalue_single("book", "bk_sno", bk_sno, "bk_id1"));
+								var bk_id1 = "bk_id1";
+								//var book1 = bike.get_para("NM-003A");
+								//var book2 = bike.get_para("NM-001A");
+								var book1 = "003a";
+								var book2 = "001a";
+								pic_name = "/" + book1 + book2 + bk_id1.toString() + "/" + pic_name;
+								
+								img_str2 = video_str.Replace("movie.mp4", pic_name);
+							}
+							else {
+								//alert2(6);
+							    //  2018/8/24
+							    img_str2 = "<img src='/image/thumb/" + link2 + link3 + img_style;
+							    //img_str2 = "<img src='/book/book92/" + link2 + link3 + img_style;
+							    //alert2(62);
+								var img_class = img_class1;
+								//alert2(63);
+								if (width <= 300) img_class = img_class2;
+								//alert2(64);
+								img_str2 += " title='" + titlex + "'  class='" + img_class + "'  >";
+							    //  2018/8/24
+								img_str2 = "<span id='" + span_photo + bk_sno.toString() + "_" + pic_seri.toString() + "_" + width.toString() + "' />";
+							}
+							//alert2(61);
+							if (photo_kind == "1") img_src = img_str2;
+							else img_src = "<img src='../scroll/code_image.gif'" + link3 + " title='" + titlex + "'>";
+
+                            //  2018/8/24
+							//linkx += link4 + img_src + "</a>";
+							linkx +=  img_src ;
+						    //alert2('linkx:' + linkx);
+						}
+						//alert2(7);
+						if (photo_kind != "1") linkx = "";
+					}
+					else {
+					    //alert2('b');
+					}
+					if (photo_kind != "1") {
+						if (retx.substring(attach_ix2 + 1, 2) == /\n/) retx = retx.substring(0, attach_ix2) + retx.substring(attach_ix2 + 2);
+					}
+					if (bk_sno == 3076) {
+					    retx = retx.substring(0, attach_ix) + linkx + retx.substring(attach_ix2 + 1);
+					}
+					else {
+					    retx = retx.substring(0, attach_ix) + retx.substring(attach_ix2 + 1);
+					}
+                }
+                else break;
+                //break;
+            }
+            //alert2('z');
+
+            return retx;
+        }
+        function process_img(span_photox) {
+            //  x999
+            var n = 0;
+            var span_id = "";
+            $("span[id^='" + span_photox + "']").each(function () {
+                n += 1;
+                if (n <= 2) {
+                    span_id = $(this).attr("id");
+                    var span_array = span_id.split('_');
+                    var bk_sno = span_array[1];
+                    var pic_seri = span_array[2];
+                    var width = span_array[3];
+                    process_img2(span_id, bk_sno, pic_seri, width);
+                    //alert(span_id);
+                }
+            })
+        }
+        function process_img2(span_id, bk_sno, pic_seri, width) {
+            var url = "../data/book.xml"; // 檔案路徑
+            $.get(url)
+                .done(function () {
+                    process_img2a(url, span_id, bk_sno, pic_seri, width);
+                }).fail(function () {
+                    alert("檔案找不到！" + url);
+                })
+        }
+        function process_img2a(url, span_id, bk_sno, pic_seri, width) {
+            loadXMLDoc(url, function (data) {
+                //var wptline = data.getElementsByTagName("book");
+                var bk_id1 = "";
+                //alert("bk_sno:" + bk_sno);
+                var n = 0;
+                $.each($(data).find('detail'), function (index, nodeValue) {
+                    n += 1;
+                    if (bk_sno == $(nodeValue).attr('bk_sno')) {
+                        bk_id1 = $(nodeValue).attr('bk_id1');
+                    }
+                });
+                //alert("bk_id1:" + bk_id1);
+                process_img3(span_id, bk_sno, pic_seri, width, bk_id1);
+                //alert(0);
+            })
+        }
+        function process_img3(span_id, bk_sno, pic_seri, width,bk_id1) {
+            var url = "../data/photo.xml"; // 檔案路徑
+            $.get(url)
+                .done(function () {
+                    process_img3a(url, span_id, bk_sno, pic_seri, width,bk_id1);
+                }).fail(function () {
+                    alert("檔案找不到！" + url);
+                })
+        }
+        function process_img3a(url, span_id, bk_sno, pic_seri, width,bk_id1) {
+            loadXMLDoc(url, function (data) {
+                //var wptline = data.getElementsByTagName("book");
+                var pic_name = "";
+                //alert("bk_sno:" + bk_sno);
+                var n = 0;
+                $.each($(data).find('detail'), function (index, nodeValue) {
+                    n += 1;
+                    if (bk_sno == $(nodeValue).attr('bk_sno') && pic_seri == $(nodeValue).attr('pic_seri')) {
+                        pic_name = $(nodeValue).attr('pic_name');
+                    }
+                });
+                //alert("pic_name:" + pic_name);
+                process_img4(span_id, bk_sno, pic_seri, width, bk_id1, pic_name);
+                //alert(0);
+            })
+        }
+        function process_img4(span_id, bk_sno, pic_seri, width, bk_id1, pic_name) {
+            //$('#output')
+            var img_class1 = "img-responsive";
+            var img_str = "../book/book" + bk_id1.toString() + "/" + pic_name;
+            if (fileExists(img_str)) {
+                img_str = "<img src='" + img_str + "' width='" + width + "' class='" + img_class1 + "'>";
+                //alert(img_str);
+                $('#' + span_id).html(img_str);
+            }
+        }
+        function fileExists(url) {
+            if (url) {
+                var req = new XMLHttpRequest();
+                req.open('HEAD', url, false);
+                req.send();
+                return req.status == 200;
+            } else {
+                return false;
+            }
+        }
+        function dash_add(pic_seri_a, aa_one) {
+            var aa = aa_one.split('-');
+            var i1 = parseInt(aa[0]);
+            var i2 = parseInt(aa[1]);
+            for (var i=i1; i <= i2; i++)
+            {
+                pic_seri_a.push(i);
+            }
+        }
+        function parse_para(strx, para) {
+            var ret;
+            var strx2 = strx.split("=");
+            //alert2(strx);
+            //alert2(para);
+            //alert2(strx2.length);
+            //alert2(strx2[0].toLowerCase());
+            //alert2('strx:' + strx + '...para:' + para);
+            if ((strx2.length == 2) && (strx2[0].toLowerCase() == para.toLowerCase())) {
+                //if (para == 'pic_seri') {
+                //    alert2('seri detected2 !');
+                //}
+                ret = strx2[1];
+                //alert2('a');
+            }
+            else {
+                ret = "";
+                //alert2('b');
+            }
+            ret = ret.toLowerCase();
+            //alert2('ret:' + ret+'...len(ret)='+ret.Length);
+            return ret;
+        }
+    </script>
+</head>
+<body onload="myFunction()">
+    <div data-role="page" class="jqm-demos" data-quicklinks="true">
+        <div data-role="header" data-position="fixed">
+            <a href="#" onclick='history.back()' class="ui-btn-left ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l">回上頁</a>
+            <!--<a href="#" onclick='window.location.href="m-app-main.html"' class="ui-btn ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l">回離線功能</a>-->
+            <a href="#" target="_blank" class="ui-btn-right ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l" onclick='window.location.href="m-app-main.html"'>回離線功能</a>
+            <h2>選擇</h2>
+        </div><!-- /header -->
+        <div id="demo">
+        </div>
+        <!--</div>-->
+    </div>
+</body>
+</html>
